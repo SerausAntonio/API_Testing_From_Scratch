@@ -5,6 +5,7 @@ import io.restassured.response.Response;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
+import java.util.HashMap;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
@@ -48,8 +49,43 @@ public class HealthCheckTest {
         response.print();
         Assert.assertEquals(response.getStatusCode(),200,"Statuscode should be 200");
         List<Integer> bookingsIds = response.jsonPath().getList("bookingid");
-        Assert.assertFalse(bookingsIds.isEmpty());
+        Assert.assertFalse(bookingsIds.isEmpty(),"Bookings ID should not be empty");
 
+    }
+    @Test
+    public void getToken(){
+
+        HashMap data = new HashMap();
+        data.put("username","admin");
+        data.put("password","password123");
+
+        given()
+                .contentType("application/json")
+                .body(data)
+
+                .when()
+                     .post("https://restful-booker.herokuapp.com/auth")
+                .then()
+                   .assertThat()
+                   .statusCode(200)
+                .log().all();
+    }
+    @Test
+    public void getTokenAfterLogin(){
+
+        HashMap data = new HashMap();
+        data.put("username","admin");
+        data.put("password","password123");
+
+        String token1 = given()
+                .contentType("application/json")
+                .body(data)
+
+                .when()
+                    .post("https://restful-booker.herokuapp.com/auth")
+                    .jsonPath().getString("token");
+
+                System.out.println("Token: "+ token1);
 
     }
 }
